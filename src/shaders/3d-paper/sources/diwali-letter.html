@@ -218,22 +218,28 @@ function drawOld(ctx){
     return y;
   }
   let bodyFont=60, y=0, lineHeight=0, bodyX=100, bodyWidth=1000;
+  const bodyStart=438;
+  const signatureHeight=134;
   do {
     ctx.font=`500 ${bodyFont}px "EB Garamond", Georgia, serif`;
-    lineHeight=Math.round(bodyFont*1.08);
-    y=455;
-    for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],bodyX,y,bodyWidth,lineHeight,false)+Math.round(bodyFont*.22);
-    if(y<=1460 || bodyFont===52) break;
+    lineHeight=Math.round(bodyFont*1.04);
+    y=bodyStart;
+    for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],bodyX,y,bodyWidth,lineHeight,false)+Math.round(bodyFont*.16);
+    if(y+signatureHeight<=TH-150 || bodyFont===48) break;
     bodyFont-=2;
-  } while(bodyFont>=52);
+  } while(bodyFont>=48);
   ctx.font=`500 ${bodyFont}px "EB Garamond", Georgia, serif`;
-  lineHeight=Math.round(bodyFont*1.08);
-  y=455;
-  for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],bodyX,y,bodyWidth,lineHeight,true)+Math.round(bodyFont*.22);
-  const closingY=y+2;
-  rule(closingY,160);
-  ctx.save(); ctx.translate(600,closingY+62); ctx.fillStyle=ROSE;
-  ctx.font='400 38px "EB Garamond", Georgia, serif'; mid(ctx,'♥',13); ctx.restore();
+  lineHeight=Math.round(bodyFont*1.04);
+  y=bodyStart;
+  for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],bodyX,y,bodyWidth,lineHeight,true)+Math.round(bodyFont*.16);
+  const signatureTop=y+7;
+  ctx.strokeStyle='rgba(165,123,53,.72)'; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.moveTo(536,signatureTop+9); ctx.lineTo(584,signatureTop+9); ctx.moveTo(616,signatureTop+9); ctx.lineTo(664,signatureTop+9); ctx.stroke();
+  ctx.save(); ctx.translate(600,signatureTop+9); ctx.rotate(Math.PI/4); ctx.fillStyle=GOLD; ctx.fillRect(-3.5,-3.5,7,7); ctx.restore();
+  ctx.fillStyle='#70451F'; ctx.font='italic 400 40px "EB Garamond", Georgia, serif';
+  mid(ctx,'Best wishes,',signatureTop+54);
+  ctx.fillStyle=INK; ctx.font='500 54px "EB Garamond", Georgia, serif';
+  mid(ctx,'S. Satyanarayana ❤️',signatureTop+116);
   ctx.strokeStyle='rgba(165,123,53,.40)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(420,TH-88); ctx.lineTo(780,TH-88); ctx.stroke();
 }

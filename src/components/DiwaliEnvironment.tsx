@@ -288,6 +288,45 @@ export function DiwaliEnvironment() {
     let lastHeight = 11.2;
     let disposed = false;
 
+    const placeSideLamps = () => {
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
+      const pxPerWorld = viewH / lastHeight;
+      const paper = document.querySelector<HTMLElement>(".paper-shell")?.getBoundingClientRect();
+      const footer = document.querySelector<HTMLElement>(".colophon")?.getBoundingClientRect();
+      if (!paper || paper.width <= 0 || paper.height <= 0) return;
+
+      const leftGutter = Math.max(0, paper.left);
+      const rightGutter = Math.max(0, viewW - paper.right);
+      const lampWidth = 1.12 * 0.86 * pxPerWorld;
+      const safeInset = 12;
+      let leftPx: number;
+      let rightPx: number;
+      let centerY: number;
+
+      if (leftGutter >= lampWidth + safeInset * 2 && rightGutter >= lampWidth + safeInset * 2) {
+        // The renderer scissors out the paper rectangle, so use its side gutters
+        // only when each diya fits completely outside that isolated iframe.
+        leftPx = leftGutter / 2;
+        rightPx = paper.right + rightGutter / 2;
+        centerY = paper.top + paper.height * 0.72;
+      } else {
+        // On narrow screens, the iframe fills the width. Place both lamps in the
+        // clear band below it, above the safe-area-aware colophon.
+        const footerTop = footer?.top ?? viewH - Math.max(24, safeInset);
+        const availableTop = Math.min(viewH - safeInset, footerTop) - safeInset;
+        const bandTop = Math.min(availableTop, paper.bottom + safeInset);
+        centerY = bandTop + Math.max(0, availableTop - bandTop) / 2;
+        leftPx = Math.max(lampWidth / 2 + safeInset, viewW * 0.22);
+        rightPx = Math.min(viewW - lampWidth / 2 - safeInset, viewW * 0.78);
+      }
+
+      const toWorldX = (px: number) => (px - viewW / 2) / pxPerWorld;
+      const toWorldY = (px: number) => (viewH / 2 - px) / pxPerWorld;
+      lamps[0].group.position.set(toWorldX(leftPx), toWorldY(centerY), -1.2);
+      lamps[1].group.position.set(toWorldX(rightPx), toWorldY(centerY), -1.2);
+    };
+
     const resize = () => {
       const widthPx = window.innerWidth;
       const heightPx = window.innerHeight;
@@ -303,10 +342,9 @@ export function DiwaliEnvironment() {
       backdrop.scale.set(lastWidth, lastHeight, 1);
       lamps.forEach((lamp, index) => {
         if (index === 2) { lamp.group.visible = aspect > 0.8; return; }
-        lamp.group.position.x = (index === 0 ? -1 : 1) * Math.min(lastWidth * 0.40, 7.2);
-        lamp.group.position.y = -lastHeight * 0.39;
         lamp.group.visible = true;
       });
+      placeSideLamps();
     };
     resize();
     window.addEventListener("resize", resize, { passive: true });
@@ -391,6 +429,7 @@ export function DiwaliEnvironment() {
       const letter = document.querySelector<HTMLElement>(".paper-shell")?.getBoundingClientRect();
       const viewW = window.innerWidth;
       const viewH = window.innerHeight;
+      placeSideLamps();
       renderer.setViewport(0, 0, viewW, viewH);
       renderer.setScissorTest(true);
       if (letter && letter.width > 0 && letter.height > 0) {
