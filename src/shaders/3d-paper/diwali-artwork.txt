@@ -1,0 +1,96 @@
+function drawOld(ctx){
+  const rnd=rng(4711);
+  ctx.fillStyle='#F7EEDC'; ctx.fillRect(0,0,TW,TH);
+  for(let i=0;i<110;i++){
+    const x=rnd()*TW, y=rnd()*TH, r=55+rnd()*150, a=0.008+rnd()*0.018;
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,'rgba(146,112,62,'+a+')'); g.addColorStop(1,'rgba(146,112,62,0)');
+    ctx.fillStyle=g; ctx.fillRect(x-r,y-r,2*r,2*r);
+  }
+  ctx.lineWidth=1;
+  for(let i=0;i<1300;i++){
+    const x=rnd()*TW, y=rnd()*TH, a=rnd()*Math.PI, l=2+rnd()*8;
+    ctx.strokeStyle=rnd()<0.5?'rgba(255,255,248,.18)':'rgba(120,96,58,.08)';
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+Math.cos(a)*l,y+Math.sin(a)*l); ctx.stroke();
+  }
+  const INK='#493322', GOLD='#A57B35', ROSE='#B87970';
+  const vg=ctx.createRadialGradient(TW/2,TH/2,TH*.2,TW/2,TH/2,TH*.72);
+  vg.addColorStop(0,'rgba(120,92,48,0)'); vg.addColorStop(1,'rgba(120,92,48,.13)');
+  ctx.fillStyle=vg; ctx.fillRect(0,0,TW,TH);
+
+  ctx.strokeStyle='rgba(165,123,53,.82)'; ctx.lineWidth=3.2; ctx.strokeRect(48,48,TW-96,TH-96);
+  ctx.strokeStyle='rgba(165,123,53,.45)'; ctx.lineWidth=1; ctx.strokeRect(62,62,TW-124,TH-124);
+  function flower(x,y,scale){
+    ctx.save(); ctx.translate(x,y); ctx.scale(scale,scale);
+    ctx.strokeStyle='rgba(165,123,53,.68)'; ctx.fillStyle='rgba(214,173,96,.18)'; ctx.lineWidth=1.5;
+    for(let i=0;i<8;i++){
+      ctx.save(); ctx.rotate(i*Math.PI/4); ctx.beginPath(); ctx.ellipse(0,-22,7,18,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); ctx.restore();
+    }
+    ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fillStyle=GOLD; ctx.fill();
+    ctx.restore();
+  }
+  flower(92,92,1); flower(TW-92,92,1); flower(92,TH-92,1); flower(TW-92,TH-92,1);
+  const rule=(y,half)=>{
+    ctx.strokeStyle='rgba(165,123,53,.78)'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(600-half,y); ctx.lineTo(600-17,y); ctx.moveTo(600+17,y); ctx.lineTo(600+half,y); ctx.stroke();
+    ctx.save(); ctx.translate(600,y); ctx.rotate(Math.PI/4); ctx.fillStyle=GOLD; ctx.fillRect(-4,-4,8,8); ctx.restore();
+    ctx.fillStyle='rgba(214,173,96,.82)'; ctx.beginPath(); ctx.arc(600-half-12,y,2.5,0,Math.PI*2); ctx.arc(600+half+12,y,2.5,0,Math.PI*2); ctx.fill();
+  };
+
+  ctx.fillStyle='rgba(73,51,34,.62)'; ctx.font='500 20px Inter, sans-serif';
+  track(ctx,'A FESTIVAL OF LIGHTS',600,175,7,true);
+  rule(220,120);
+
+  ctx.fillStyle=INK; ctx.font='500 86px "EB Garamond", Georgia, serif';
+  mid(ctx,'Happy Diwaliii! ❤️✨',332);
+  ctx.fillStyle='#8C6239'; ctx.font='italic 400 36px "EB Garamond", Georgia, serif';
+  mid(ctx,"Maybe I'm the first one to wish you...",407);
+  rule(465,185);
+
+  const paragraphs=[
+    "I still remember the day I met you. There's something about your eyes that I can't really put into words — that kindness, fearlessness and the way they express so much without even saying anything.",
+    "Honestly, I'm as excited to see those eyes again as I used to be to watch crackers light up the sky and stars sparkle on Diwali night.",
+    "Wishing you a very Happy Diwali once again... princess!",
+    "I hope those eyes get to witness all the dreams you've been wishing for, all the happiness you deserve and the success you've been working towards.",
+    "And I hope that beautiful smile never loses its reason to shine. ❤️"
+  ];
+  function wrapEmphasized(text,x,y,maxW,lineHeight,paint){
+    const words=text.split(' '); const lines=[]; let line='';
+    for(const word of words){
+      const candidate=line?line+' '+word:word;
+      if(ctx.measureText(candidate).width>maxW && line){ lines.push(line); line=word; }
+      else line=candidate;
+    }
+    if(line) lines.push(line);
+    for(const row of lines){
+      if(paint){
+        ctx.fillStyle=INK; ctx.fillText(row,x,y);
+        const emphasis=/(eyes|princess|beautiful smile)/gi; let match;
+        while((match=emphasis.exec(row))!==null){
+          const before=row.slice(0,match.index);
+          ctx.fillStyle=/princess|beautiful/i.test(match[0])?ROSE:GOLD;
+          ctx.fillText(match[0],x+ctx.measureText(before).width,y);
+        }
+      }
+      y+=lineHeight;
+    }
+    return y;
+  }
+  let bodyFont=48, y=0;
+  do {
+    ctx.font=`400 ${bodyFont}px "EB Garamond", Georgia, serif`;
+    y=545;
+    for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],134,y,932,58,false)+17;
+    if(y<=1510 || bodyFont===40) break;
+    bodyFont-=2;
+  } while(bodyFont>=40);
+  ctx.font=`400 ${bodyFont}px "EB Garamond", Georgia, serif`;
+  y=545;
+  for(let i=0;i<paragraphs.length;i++) y=wrapEmphasized(paragraphs[i],134,y,932,58,true)+17;
+  const closingY=y+5;
+  rule(closingY,160);
+  ctx.save(); ctx.translate(600,closingY+62); ctx.fillStyle=ROSE;
+  ctx.font='400 38px "EB Garamond", Georgia, serif'; mid(ctx,'♥',13); ctx.restore();
+  ctx.strokeStyle='rgba(165,123,53,.40)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(420,TH-88); ctx.lineTo(780,TH-88); ctx.stroke();
+}
